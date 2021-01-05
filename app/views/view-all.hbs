@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Messenger App: View All Posts!</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="style.css">
+        <!-- jQuery -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <link rel="icon" href="logo2.png">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="/dashboard">
+                <img src="logo.png" height="30" width="auto" class="d-inline-block align-top" alt="">
+                MessengerApp
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Posts
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/create">Create Post</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/view">View Own Posts</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/view-all">View All Posts</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Messages <span class="hasMessage"></span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/send">Send Message</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/messages">View Messages <span class="hasMessage"></span></a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <br/>
+                    <div class="jumbotron">
+                        <h1>Messenger App</h1>
+                        <p>Hello <span id="username"></span>! View all submitted posts below!</p>
+                    </div>
+                </div>
+                <div class="col-md-6" id="posts">
+                    
+                </div>
+            </div>
+            <br/>
+        </div>
+    </body>
+</html>
+<script type="text/javascript">
+    var userid;
+    function receivedMessage(){
+        $(".hasMessage").html(`<b style="color: red;">New!</b>`);
+    }
+    $.get("/user", function(data){
+        console.log(data);
+        userid = data.id;
+        $("#username").text(`${data.username}`);
+        if(data.received_message){
+            receivedMessage();
+        }
+        getPosts();
+    })
+    function getPosts(){
+        $.get("/posts/all", function(data){
+            for(var i = 0;i < data.length;i++){
+                    var newPost = $(`
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="${data[i].user.picture}" class="card-img" alt="${data[i].picture}"/>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h3 class="card-title">
+                                        ${data[i].title}
+                                    </h3>
+                                    <div class="card-text">
+                                        <h3>${data[i].body}</h3>
+                                        <p>Submitted by ${data[i].user.username}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`)
+                $("#posts").append(newPost);
+            }
+        })
+    }
+</script>
