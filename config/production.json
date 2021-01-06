@@ -1,0 +1,17 @@
+{
+    "production": {
+ 
+        "username": "t624xu8y178ahtwf",
+ 
+        "password": "u50vbd69zk2s9vri",
+ 
+        "database": "w7epgypu6mssgfn2",
+ 
+        "host": "dt3bgg3gu6nqye5f.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+ 
+        "dialect": "mysql",
+
+        "use_env_variable": "JAWSDB_URL"
+ 
+    }
+}

@@ -8,7 +8,7 @@ var config;
 if(env === "development"){
     config = require(path.join(__dirname, '../../', 'config', 'config.json'))[env]; //initially the second argument was .. but that was app/config and led to errors
 } else {
-    config = require(path.join(__dirname, '..', 'config', 'config.json'))[env];
+    config = require(path.join(__dirname, '../../', 'config', 'production.json'))[env];
 }
 var sequelize = new Sequelize(config.database, config.username, config.password, config);
 var db = {};
