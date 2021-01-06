@@ -8,6 +8,7 @@ var Post = models.post;
 var Message = models.message;
 
 module.exports = function(app, passport){
+    app.get("/", isLoggedIn, authController.dashboard);
     app.get("/signup", notLoggedIn, authController.signup);
     app.get("/signin", notLoggedIn, authController.signin);
     app.get("/create", isLoggedIn, authController.create);

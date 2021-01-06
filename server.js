@@ -35,9 +35,9 @@ app.engine("hbs", exphbs({
 }));
 app.set("view engine", ".hbs");
 
-app.get("/", function(req, res){
-    res.send("Welcome to the Messenger App!");
-});
+// app.get("/", function(req, res){
+//     res.send("Welcome to the Messenger App!");
+// });
 
 //Models
 var models = require("./app/models");
