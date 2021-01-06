@@ -58,7 +58,7 @@
                     <br/>
                     <div class="jumbotron">
                         <h1>Messenger App</h1>
-                        <p>Hello <span id="username"></span>! View all submitted posts below!</p>
+                        <p><span id="username"></span></p>
                     </div>
                 </div>
                 <div class="col-md-6" id="posts">
@@ -71,13 +71,14 @@
 </html>
 <script type="text/javascript">
     var userid;
+    var username;
     function receivedMessage(){
         $(".hasMessage").html(`<b style="color: red;">New!</b>`);
     }
     $.get("/user", function(data){
         console.log(data);
         userid = data.id;
-        $("#username").text(`${data.username}`);
+        username = data.username;
         if(data.received_message){
             receivedMessage();
         }
@@ -85,7 +86,11 @@
     })
     function getPosts(){
         $.get("/posts/all", function(data){
+            $("#username").text(`Hello ${username}! View all submitted posts below!`);
+            $("#posts").empty();
             for(var i = 0;i < data.length;i++){
+                    var editButtons = `<button class="btn btn-primary editBtn" data-id="${data[i].id}">Edit Post</button> <button class="btn btn-danger deleteBtn" data-id="${data[i].id}">Delete Post</button>`;
+                    var buttonConditional = data[i].user.id === userid ? editButtons : `<p>Submitted by ${data[i].user.username}</p>`;
                     var newPost = $(`
                     <div class="card">
                         <div class="row">
@@ -99,7 +104,7 @@
                                     </h3>
                                     <div class="card-text">
                                         <h3>${data[i].body}</h3>
-                                        <p>Submitted by ${data[i].user.username}</p>
+                                        ${buttonConditional}
                                     </div>
                                 </div>
                             </div>
@@ -107,6 +112,88 @@
                     </div>`)
                 $("#posts").append(newPost);
             }
+            $(".editBtn").on("click", function(){
+                var id = $(this).data("id");
+                editPost(id);
+            });
+            $(".deleteBtn").on("click", function(){
+                var id = $(this).data("id");
+                deletePost(id);
+            })
+        })
+    }
+    function editPost(id){
+        $.get(`/post/${id}`, function(data){
+            $("#posts").empty();
+            var post = {
+                id: data[0].id,
+                title: data[0].title,
+                body: data[0].body
+            }
+            $("#username").text("Make any changes in the boxes below!");
+            var editForm = `
+            <span id="changes"></span>
+            <form id="edit-post" name="edit-post">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" name="title" class="form-control" id="title" value="${post.title}">
+                </div>
+                <div class="form-group">
+                    <label for="body">Message</label>
+                    <input type="text" name="body" class="form-control" id="body" value="${post.body}">
+                </div>
+                <button type="submit" class="btn btn-primary">Edit Post</button> <button class="btn btn-primary return">Return to Posts</button>
+            </form>
+            `;
+            $("#posts").append(editForm);
+            $(".return").on("click", function(){
+                getPosts();
+            });
+            $("#edit-post").submit(function(event){
+                event.preventDefault();
+                var newPost = {
+                    title: $("#title").val().trim(),
+                    body: $("#body").val().trim(),
+                    id: post.id
+                }
+                if(post.title === newPost.title && post.body === newPost.body){
+                    $("#changes").text("You didn't change anything...");
+                } else {
+                    $.ajax({
+                        method: "PUT",
+                        url: "/posts",
+                        data: newPost
+                    }).then(function(){
+                        getPosts();
+                    })
+                }
+            })
+        })
+    }
+    function deletePost(id){
+        $.get(`/post/${id}`, function(data){
+            $("#posts").empty();
+            var confirmation = `
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Are you sure you want to delete post "${data[0].title}?"</h3>
+                    <button class="btn btn-primary yes" data-id="${data[0].id}">Yes</button> <button class="btn btn-danger no" data-id="${data[0].id}">No</button>
+                </div>
+            </div>
+            `;
+            $("#posts").append(confirmation);
+            $(".yes").on("click", function(){
+                var id = $(this).data("id");
+                $.ajax({
+                    method: "DELETE",
+                    url: "/posts/" + id
+                }).then(function(){
+                    getPosts();
+                })
+            });
+            $(".no").on("click", function(){
+                getPosts();
+            })
         })
     }
 </script>

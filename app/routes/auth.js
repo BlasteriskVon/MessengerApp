@@ -1,3 +1,4 @@
+const { json } = require("body-parser");
 const { authorize } = require("passport");
 var authController = require("../controllers/authcontroller.js");
 var models = require("../models");
@@ -33,10 +34,14 @@ module.exports = function(app, passport){
     app.post("/create", createPost);
     app.post("/send", sendMessage);
     app.post("/posts/user", getPosts);
+    app.get("/post/:id", getPost);
     app.post("/messages", getMessages);
     app.get("/posts/all", getAllPosts);
     app.post("/read", readMessage);
     app.post("/check", checkMessages);
+
+    app.delete("/posts/:id", deletePost);
+    app.put("/posts", updatePost);
 
     function isLoggedIn(req, res, next){
         if(req.isAuthenticated()){
@@ -111,6 +116,15 @@ module.exports = function(app, passport){
             console.log("Error:", err);
         })
     }
+    function getPost(req, res){
+        Post.findAll({
+            where: {
+                id: req.params.id
+            }
+        }).then(function(result){
+            res.json(result);
+        })
+    }
     function getMessages(req, res){
         console.log("calling getmessages");
         console.log(Message.associations);
@@ -141,6 +155,26 @@ module.exports = function(app, passport){
             res.json(dbPost);
         }).catch(function(err){
             console.log("Error:", err);
+        })
+    }
+    function deletePost(req, res){
+        Post.destroy({
+            where: {
+                id: req.params.id
+            }
+        }).then(function(dbPost){
+            res.json(dbPost);
+        })
+    }
+    function updatePost(req, res){
+        Post.update(
+            req.body,
+            {
+                where: {
+                    id: req.body.id
+                }
+        }).then(function(dbPost){
+            res.json(dbPost);
         })
     }
     function readMessage(req, res){
