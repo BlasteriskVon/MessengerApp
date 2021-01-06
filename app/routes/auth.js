@@ -17,14 +17,16 @@ module.exports = function(app, passport){
     app.get("/messages", isLoggedIn, authController.messages);
     app.post("/signup", passport.authenticate("local-signup", {
             successRedirect: "/dashboard",
-
-            failureRedirect: "/signup"
+            failureRedirect: "/signup",
+            badRequestMessage: "testing",
+            failureFlash: true
         }
     ));
     app.post("/signin", passport.authenticate("local-signin", {
             successRedirect: "/dashboard",
-
-            failureRedirect: "/signup"
+            failureRedirect: "/signin",
+            badRequestMessage: "testing",
+            failureFlash: true
         }
     ));
     app.get("/dashboard", isLoggedIn, authController.dashboard);

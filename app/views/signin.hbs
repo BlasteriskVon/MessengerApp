@@ -24,6 +24,9 @@
                     </div>
                 </div>
                 <div class="col-md-6">
+                    {{#if error}}
+                        <h3>{{error}}</h3>
+                    {{/if}}
                     <form id="signin" name="signin" method="post" action="signin">
                         <div class="form-group">
                             <label for="username">Username</label>

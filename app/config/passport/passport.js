@@ -40,7 +40,7 @@ module.exports = function(passport, user){
                 if(user){
                     console.log("username taken");
                     return done(null, false, {
-                        message: "That username is already taken!"
+                        message: "Username is already taken."
                     });
                 } else {
                     var userPassword = generateHash(password);
@@ -87,12 +87,12 @@ module.exports = function(passport, user){
             }).then(function(user){
                 if(!user){
                     return done(null, false, {
-                        message: "Username does not exist"
+                        message: "The username or password is incorrect."
                     });
                 }
                 if(!isValidPassword(user.password, password)){
                     return done(null, false, {
-                        message: "Incorrect password."
+                        message: "The username or password is incorrect."
                     });
                 }
                 var userinfo = user.get();

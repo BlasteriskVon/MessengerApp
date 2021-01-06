@@ -1,4 +1,5 @@
 var express = require("express");
+var flash = require("connect-flash");
 var app = express();
 var passport = require("passport");
 var session = require("express-session");
@@ -7,6 +8,9 @@ var env = require("dotenv").config();
 var exphbs = require("express-handlebars");
 
 var PORT = process.env.PORT || 5000;
+
+//using flash
+app.use(flash());
 
 //to access images
 app.use(express.static("./app/views/images"));
