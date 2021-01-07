@@ -27,6 +27,9 @@ exports.viewAll = function(req, res){
 exports.messages = function(req, res){
     res.render("messages");
 }
+exports.change = function(req, res){
+    res.render("change");
+}
 exports.logout = function(req, res){
     req.session.destroy(function(err){
         res.redirect("/signin");

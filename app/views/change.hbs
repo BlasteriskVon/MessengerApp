@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Messenger App: Send a Message!</title>
+        <title>Messenger App: Change Profile!</title>
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -61,27 +61,20 @@
                     <br/>
                     <div class="jumbotron">
                         <h1>Messenger App</h1>
-                        <p>Hello <span id="username"></span>! Write your message below!</p>
+                        <p>Hello <span id="username"></span>! Update your profile below!</p>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <span id="submitted"></span>
-                    <form id="send-message" name="send-message">
+                <div class="col-md-4">
+                    <img id="userPic" src="" alt="current picture" style="width: 100%; height: auto"/>
+                </div>
+                <div class="col-md-8">
+                    <span id="changed"></span>
+                    <form id="change-profile" name="change-profile">
                         <div class="form-group">
-                            <label for="receiver_id">Select a user.</label>
-                            <input id="receiver_id" name="receiver_id" list="users">
-                            <datalist id="users">
-                            </datalist>
+                            <label for="picture">Picture Link</label>
+                            <input type="text" name="picture" class="form-control" id="picture" placeholder="Enter an image link!">
                         </div>
-                        <div class="form-group">
-                            <label for="title">Title</label>
-                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter a title!">
-                        </div>
-                        <div class="form-group">
-                            <label for="body">Message</label>
-                            <textarea type="text" name="body" class="form-control" id="body" placeholder="Enter a message!"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
+                        <button type="submit" class="btn btn-primary">Change Picture</button>
                     </form>
                 </div>
             </div>
@@ -100,40 +93,43 @@
         if(user.received_message){
             receivedMessage();
         }
-        getUsers();
+        setPic(user.picture);
     })
-    function getUsers(){
-        $.get("/users", function(data){
-            for(var i = 0;i < data.length;i++){
-                if(data[i].id != user.id){
-                    var option = $(`<option data-value="${data[i].id}" value="${data[i].username}"></option>`);
-                    $("#users").append(option);
-                }
-            }
-        })
+    function setPic(pic){
+        $("#picture").val(pic);
+        $("#userPic").attr("src", pic);
     }
-    $("#send-message").submit(function(event){
+    $("#change-profile").submit(function(event){
         event.preventDefault();
-        var value = $("#receiver_id").val();
-        var userid = $(`#users [value="${value}"]`).data("value");
-        var newMessage = {
-            sender_id: user.id,
-            receiver_id: userid,
-            title: $("#title").val().trim(),
-            body: $("#body").val().trim()
+        var newPic = {
+            id: user.id,
+            picture: $("#picture").val().trim()
         }
+        var testImage = new Image();
+        testImage.onload = function(){
+            updatePicture(newPic, true);
+        }
+        testImage.onerror = function(){
+            newPic.picture = "https://ih1.redbubble.net/image.757796448.0920/flat,750x1000,075,f.u3.jpg";
+            updatePicture(newPic, false);
+        }
+        testImage.src = newPic.picture;
+    })
+
+    function updatePicture(newPic, validLink){
         $.ajax({
-            url: "/send",
-            type: "post",
-            data: newMessage,
+            url: "/change-pic",
+            method: "PUT",
+            data: newPic,
             success: function(response){
-                $("#title").val("");
-                $("#body").val("");
-                $("#receiver_id").val("");
-                $("#submitted").text("Sent!");
+                if(validLink){
+                    $("#changed").text("Picture changed successfully!");
+                } else {
+                    $("#changed").text("Sorry, couldn't find a picture from that url!");
+                }
+                setPic(newPic.picture);
             },
             dataType: "json"
-
         })
-    })
+    }
 </script>

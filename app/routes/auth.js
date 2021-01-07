@@ -16,6 +16,7 @@ module.exports = function(app, passport){
     app.get("/view-all", isLoggedIn, authController.viewAll);
     app.get("/send", isLoggedIn, authController.send);
     app.get("/messages", isLoggedIn, authController.messages);
+    app.get("/change", isLoggedIn, authController.change);
     app.post("/signup", passport.authenticate("local-signup", {
             successRedirect: "/dashboard",
             failureRedirect: "/signup",
@@ -45,6 +46,7 @@ module.exports = function(app, passport){
 
     app.delete("/posts/:id", deletePost);
     app.put("/posts", updatePost);
+    app.put("/change-pic", updatePicture);
 
     function isLoggedIn(req, res, next){
         if(req.isAuthenticated()){
@@ -202,6 +204,17 @@ module.exports = function(app, passport){
             {
                 association: "senderID"
             }]
+        }).then(function(result){
+            res.json(result);
+        })
+    }
+    function updatePicture(req, res){
+        User.update({
+            picture: req.body.picture
+        }, {
+            where: {
+                id: req.body.id
+            }
         }).then(function(result){
             res.json(result);
         })
