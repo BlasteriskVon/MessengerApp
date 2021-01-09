@@ -138,7 +138,7 @@
             dataType: "json"
         })
     }
-    function readMessage(id, username){
+    function readMessage(id){
         var request = {
             id: id,
             read: true
@@ -163,7 +163,7 @@
                                         ${message.body}
                                     </p>
                                     <div class="card-footer text-muted">Sent by ${message.senderID.username}</div>
-                                    <a href="#" class="btn btn-primary" id="back">Back to Messages</a>
+                                    <a href="#" class="btn btn-primary" id="back">Back to Messages</a> <a href="#" class="btn btn-primary" id="reply" data-id="${message.id}">Reply</a>
                                 </div>
                             </div>
                         </div>
@@ -172,8 +172,77 @@
                 $("#back").on("click", function(){
                     getMessages();
                 })
+                $("#reply").on("click", function(){
+                    var id = $(this).data("id");
+                    replyMessage(id);
+                })
             },
             dataType: "json"
+        })
+    }
+    function replyMessage(id){
+        var request = {
+            id: id,
+            read: true
+        }
+        $.ajax({
+            url: "/read",
+            method: "POST",
+            data: request,
+            success: function(data){
+                var message = data[0];
+                $("#messages").empty();
+                var content = `
+                 <form id="send-reply" name="send-reply" data-sender="${message.receiverID.id}" data-receiver="${message.senderID.id}">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" name="title" class="form-control" id="title" placeholder="Enter a title!" value="RE: ${message.title}">
+                    </div>
+                    <div class="form-group">
+                        <label for="body">Message</label>
+                        <textarea type="text" name="body" class="form-control" id="body" placeholder="Enter a message!"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Response</button>
+                </form>
+                <br/>
+                <button class="btn btn-primary" id="back">Back to Messages</button> <button class="btn btn-primary" id="return" data-id="${message.id}">Return to Message</button>
+                `;
+                $("#messages").append(content);
+                $("#send-reply").submit(function(event){
+                    event.preventDefault();
+                    var reply = {
+                        sender_id: userid,
+                        receiver_id: $("#send-reply").data("receiver"),
+                        title: $("#title").val().trim(),
+                        body: $("#body").val().trim()
+                    }
+                    $.ajax({
+                        url: "/send",
+                        type: "post",
+                        data: reply,
+                        success: function(response){
+                            $("#messages").empty();
+                            var content = `
+                            <h4>Your message has been sent!</h4>
+                            <button class="btn btn-primary" id="back">Back to Messages</button>
+                            `
+                            $("#messages").append(content);
+                            $("#back").on("click", function(){
+                                getMessages();
+                            })
+                        },
+                        dataType: "json"
+                    });
+                })
+                $("#back").on("click", function(){
+                    getMessages();
+                })
+                $("#return").on("click", function(){
+                    var id = $(this).data("id");
+                    readMessage(id);
+                })
+
+            }
         })
     }
 </script>
