@@ -75,6 +75,7 @@ module.exports = function(passport, user){
         },
 
         function(req, username, password, done){
+            console.log(req.body);
             var User = user;
             var isValidPassword = function(userpass, password){
                 return bCrypt.compareSync(password, userpass);
@@ -97,8 +98,8 @@ module.exports = function(passport, user){
                 }
                 var userinfo = user.get();
                 if(req.body.remember){
+                    console.log("should be staying");
                     req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000;
-                    req.session.cookie.expires = false;
                 }
                 return done(null, userinfo);
             }).catch(function(err){
